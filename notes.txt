@@ -1,6 +1,2 @@
 Transducers are composable and efficient data transformation functions which don't create
 intermediate collections.
-
-A few things to note about common array methods. Map, filter, and reduce all have different
-signatures, so they're harder to compose.
-
