@@ -79,20 +79,7 @@ employees.reduce(mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0
 // mapper((employee) => ....) returns (initialValue, input) => {}
 // (initialValue, input) => {} is the signature for Array.reduce's callback
 ```
-Yes (you fancy person you) we could have defined `filterer` and `mapper` like this:
-```javascript
-const filterer = (filteringFn, initialValue, input) => {....});
 
-const mapper = (mappingFn, initialValue, input) => {....});
-```
-and used partial application with reduce:
-```javascript
-// filter
-employees.reduce(_.partial(filterer, (employee) => {....}), []);
-
-// map
-employees.reduce(_.partial(mapper, ((employee) => {....})), []);
-```
 Now we have a common interface for filtering and mapping.
 
 There's something else common here too, the function we use to fold our mapped or filtered value 
