@@ -1,2 +1,0 @@
-Transducers are composable and efficient data transformation functions which don't create
-intermediate collections.
