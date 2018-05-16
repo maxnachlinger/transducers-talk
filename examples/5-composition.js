@@ -25,21 +25,22 @@ const mapper = (mappingFn) => (reducingFn) => (initialValue, input) => {
 // this means we can compose these functions together - consider this:
 // Note absurd whitespace to show the flow
 
-const transformFn = mapper(
+const transformFn = (reducingFn) => mapper(
   (employee) => ({ ...employee, fun: employee.id % 2 === 0 })
 )(
-  filterer((employee) => employee.id % 2 === 0)(reducerFn)
+  filterer((employee) => employee.id % 2 === 0)(reducingFn)
 );
 
-const filteredAndMapped = employees.reduce(transformFn, []);
+const filteredAndMapped = employees.reduce(transformFn(reducerFn), []);
 
 // using lodash/fp we can make this look nicer
+
 const transformFn2 = _.flow(
   mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0 })),
   filterer((employee) => employee.id % 2 === 0)
-)(reducerFn);
+);
 
-const filteredAndMapped2 = employees.reduce(transformFn2, []);
+const filteredAndMapped2 = employees.reduce(transformFn2(reducerFn), []);
 
 console.log(`filtered and mapped:\t(${filteredAndMapped.length}) ${employeesToString(filteredAndMapped)}`);
 console.log(`filtered and mapped 2:\t(${filteredAndMapped2.length}) ${employeesToString(filteredAndMapped2)}`);

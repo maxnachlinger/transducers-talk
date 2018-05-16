@@ -1,8 +1,6 @@
-### Transducers
+## Transducers
 
 ### Let's build up some ideas before we talk about transducers
-
-Array filter, map, and reduce
 
 Array filter, map, and reduce have different signatures:
 ```javascript
@@ -109,7 +107,7 @@ const reducerFn = (initialValue, input) => {
 `reducerFn` takes in an initial value and an input, and reduces them to a single value and 
 returns it (a pretty fancy way of describing `Array.push`).
 
-Now let's refactor our `filterer` and `mapper` to accept in a reducing function.
+Now let's refactor our `filterer` and `mapper` to accept a reducing function.
 
 ```javascript
 const filterer = (filteringFn) => (reducingFn) => (initialValue, input) => {
@@ -145,22 +143,22 @@ const mapper = (mappingFn) => (reducingFn) => (initialValue, input) => {
 They now have the same signature which means we can compose them! 
 ```javascript
 // Note absurd whitespace to highlight the composition
-const transformFn0 = mapper(
+const transformFn = (reducingFn) => mapper(
   (employee) => ({ ...employee, fun: employee.id % 2 === 0 })
 )(
-  filterer((employee) => employee.id % 2 === 0)(reducerFn)
+  filterer((employee) => employee.id % 2 === 0)(reducingFn)
 );
 
 // that hurts to read, we can use one-of-many libraries to help, here's lodash/fp
 const transformFn = _.flow(
   mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0 })),
   filterer((employee) => employee.fun) // we can filter on the prop we added when mappping
-)(reducerFn);
+);
 ```
 
 Here's how we can use our new `transformFn`:
 ```javascript
-employees.reduce(transformFn, []);
+employees.reduce(transformFn(reducerFn), []);
 ```
 
 Now consider this little helper:
