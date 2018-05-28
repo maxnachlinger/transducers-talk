@@ -147,15 +147,3 @@ Here's how we can use our new `transformFn`:
 ```javascript
 employees.reduce(transformFn(reducerFn), []);
 ```
-
-Now consider this little helper:
-```javascript
-const transduce = (transformFn, reducingFn, initialValue, input) => {
-  return input.reduce(transformFn(reducingFn), initialValue);
-};
-```
-
-Here's how we might use that with our `transformFn` and our `reducerFn`:
-```javascript
-transduce(transformFn, reducerFn, [], employees);
-```
