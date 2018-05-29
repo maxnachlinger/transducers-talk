@@ -159,7 +159,30 @@ Here's how we can use our new `transformFn`:
 employees.reduce(transformFn(reducingFn), []);
 ```
 
+Remember the _reducing function_ ? You know, it takes an accumulated result and a new input and 
+returns a new accumulated result: 
+- `(accumulated-value, some-value) => accumulated-value`
+
+Let's look at our `filterer` and `mapper` once more:
+```javascript
+const filterer = (filteringFn) => (reducingFn) => (initialValue, input) => {
+  return filteringFn(input) ? reducingFn(initialValue, input) : initialValue;
+};
+
+const mapper = (mappingFn) => (reducingFn) => (initialValue, input) => {
+  return reducingFn(initialValue, mappingFn(input));
+};
+```
+
+First you pass in some mapping or filtering logic, then you get back a function that accepts a reducing
+function. You pass in that reducing function and it's wrapped in the mapping/filtering logic. This is
+a transducer. 
+
 ### Transducers
+One definition: transforming one reducing function to another.
+
+Here's a better one from [the relevant Clojure doc](https://clojure.org/reference/transducers) 
+(edited slightly to be more javascripty)
 
 > Transducers are composable transformations. They are independent from the context of their input 
 and output sources and specify only the essence of the transformation in terms of an individual 
@@ -167,4 +190,6 @@ element. Because transducers are decoupled from input or output sources, they ca
 different processes - collections, observables, etc. Transducers compose directly, without 
 awareness of input or creation of intermediate aggregates.
 
-From [the relevant Clojure doc](https://clojure.org/reference/transducers) (edited slightly to be more javascripty)
+### Benefits:
+1. Collections are only looped through once, take that `[].filter().map()` !
+2. We can compose N simple transformations which are easy to reason about and test on their own
