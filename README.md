@@ -86,14 +86,25 @@ There's something else common here too, the function we use to fold our mapped o
 into a provided intialValue. Let's pull that out, here's what it looks like:
 
 ```javascript
-const reducerFn = (initialValue, input) => {
+const reducingFn = (initialValue, input) => {
   initialValue.push(input);
   return initialValue;
 };
 ```
-`reducerFn` takes in an initial value and an input, and reduces them to a single value and 
+`reducingFn` takes in an initial value and an input, and reduces them to a single value and 
 returns it (a pretty fancy way of describing `Array.push`).
 
+### A fun term
+A _reducing function_ is a function, well, like you'd pass to `reduce` :) It takes an accumulated 
+result and a new input and returns a new accumulated result: 
+- `(accumulated-value, some-value) => accumulated-value`
+
+### Why the heck would be pass that in?
+We want our transformations to work independently from the context of their input and output, so they 
+can specify only the essence of the transformation. The `Array.push` bit is really a leak of the output
+context into our transform.
+
+### Meanwhile...
 Now let's refactor our `filterer` and `mapper` to accept a reducing function.
 
 ```javascript
@@ -111,10 +122,10 @@ initial value.
 Here's how we can use our new `filterer` and `mapper`:
 ```javascript
 employees.reduce(
-  filterer((employee) => employee.id % 2 === 0)(reducerFn), [] );
+  filterer((employee) => employee.id % 2 === 0)(reducingFn), [] );
 
 employees.reduce(
-  mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0 }))(reducerFn), [] );
+  mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0 }))(reducingFn), [] );
 ```
 
 OK here are our new `filterer` and `mapper` again:
@@ -130,20 +141,30 @@ const mapper = (mappingFn) => (reducingFn) => (initialValue, input) => {
 They now have the same signature which means we can compose them! 
 ```javascript
 // Note absurd whitespace to highlight the composition
-const transformFn = (reducingFn) => mapper(
+const transformFnSheesh= (reducingFn) => mapper(
   (employee) => ({ ...employee, fun: employee.id % 2 === 0 })
 )(
   filterer((employee) => employee.id % 2 === 0)(reducingFn)
 );
 
-// that hurts to read, we can use one-of-many libraries to help, here's lodash/fp
+// that hurts to read, we can use one-of-many libraries to help, here's lodash:
 const transformFn = _.flow(
   mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0 })),
-  filterer((employee) => employee.fun) // we can filter on the prop we added when mappping
+  filterer((employee) => employee.fun) // we can filter on the prop we added when mapping
 );
 ```
 
 Here's how we can use our new `transformFn`:
 ```javascript
-employees.reduce(transformFn(reducerFn), []);
+employees.reduce(transformFn(reducingFn), []);
 ```
+
+### Transducers
+
+> Transducers are composable transformations. They are independent from the context of their input 
+and output sources and specify only the essence of the transformation in terms of an individual 
+element. Because transducers are decoupled from input or output sources, they can be used in many 
+different processes - collections, observables, etc. Transducers compose directly, without 
+awareness of input or creation of intermediate aggregates.
+
+From [the relevant Clojure doc](https://clojure.org/reference/transducers) (edited slightly to be more javascripty)
