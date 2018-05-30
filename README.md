@@ -7,45 +7,43 @@ Array filter, map, and reduce have different signatures:
 ```javascript
 // filter: (value, index, array) => bool
 const filtered = employees
-  .filter(({ id }) => id % 2 === 0);
+  .filter(({ salary }) => salary > 100000);
 
 // map: (value, index, array) => Any
-employees
-  .map((employee) => ({ ...employee, fun: employee.id % 2 === 0 }));
+const mapped = employees
+  .map((employee) => ({ ...employee, over100k: employee.salary > 100000 }));
 
-// reduce: (accumulator, value, index, array) => Any
-employees
-  .reduce(({ red, blue }, employee) => {
-    if (employee.id % 2 === 0) {
-      blue.push(employee);
-      return { red, blue };
+// reduce is the outlier: (accumulator, value, index, array) => Any
+const { under100k, over100k } = employees
+  .reduce(({ under100k, over100k }, employee) => {
+    if (employee.salary > 100000) {
+      over100k.push(employee);
+      return { under100k, over100k };
     }
 
-    red.push(employee);
-    return { red, blue };
-  }, { red: [], blue: [] });
+    under100k.push(employee);
+    return { under100k, over100k };
+  }, { under100k: [], over100k: [] });
 ```
 (As an aside, does anyone ever user the final `array` arg?)
 
 ### Making the interfaces identical
 We can implement filter and map via reduce:
 ```javascript
-// Note: I'm using push() here since I'd rather not create a new array on each 
-// iteration via concat()
+// We can implement filter and map via reduce easily
+// Note: I'm using push() here since I'd rather not create a new array on each iteration via concat()
 
-// filter
-employees
+const filtered = employees
   .reduce((accum, employee) => {
-    if (employee.id % 2 === 0) {
+    if (employee.salary > 100000) {
       accum.push(employee);
     }
     return accum
   }, []);
 
-// map
-employees
+const mapped = employees
   .reduce((accum, employee) => {
-    accum.push({ ...employee, fun: employee.id % 2 === 0 });
+    accum.push({ ...employee, over100k: employee.salary > 100000 });
     return accum;
   }, []);
 ```
@@ -55,6 +53,9 @@ interface, it looks like this:
 
 `(someFunction) => (initialValue, input) => stuff`
 ```javascript
+// so with filter and map implemented in terms of reduce, we now have a common interface. Let's
+// extract more common things. Here are 2 common functions
+
 const filterer = (filteringFn) => (initialValue, input) => {
   if (filteringFn(input)) {
     initialValue.push(input);
@@ -69,14 +70,16 @@ const mapper = (mappingFn) => (initialValue, input) => {
 ```
 Here's how we can use our new functions:
 ```javascript
-// filter
-employees.reduce(filterer((employee) => employee.id % 2 === 0), []);
+// now let's use them to get the above results
+const filtered = employees.reduce(filterer((employee) => employee.salary > 100000), []);
 // here's what's happening
 // filterer((employee) => ....) returns (initialValue, input) => {}
 // (initialValue, input) => {} is the signature for Array.reduce's callback
 
-// map
-employees.reduce(mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0 })), []);
+const mapped = employees.reduce(mapper((employee) => ({
+  ...employee,
+  over100k: employee.salary > 100000
+})), []);
 // same thing here:
 // mapper((employee) => ....) returns (initialValue, input) => {}
 // (initialValue, input) => {} is the signature for Array.reduce's callback
@@ -122,37 +125,34 @@ initial value.
 
 Here's how we can use our new `filterer` and `mapper`:
 ```javascript
-employees.reduce(
-  filterer((employee) => employee.id % 2 === 0)(reducingFn), [] );
+const filtered = employees.reduce(
+  filterer((employee) => employee.salary > 100000)(reducerFn),
+  []
+);
 
-employees.reduce(
-  mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0 }))(reducingFn), [] );
+const mapped = employees.reduce(
+  mapper((employee) => ({ ...employee, over100k: employee.salary > 100000 }))(reducerFn),
+  []
+);
 ```
 
-OK here are our new `filterer` and `mapper` again:
+Our new `filterer` and `mapper` now have the same signature which means we can compose them! 
 ```javascript
-const filterer = (filteringFn) => (reducingFn) => (initialValue, input) => {
-  return filteringFn(input) ? reducingFn(initialValue, input) : initialValue;
-};
+// Note absurd whitespace to show the flow
 
-const mapper = (mappingFn) => (reducingFn) => (initialValue, input) => {
-  return reducingFn(initialValue, mappingFn(input));
-};
-```
-They now have the same signature which means we can compose them! 
-```javascript
-// Note absurd whitespace to highlight the composition
-const transformFnSheesh= (reducingFn) => mapper(
-  (employee) => ({ ...employee, fun: employee.id % 2 === 0 })
+const transformFn = (reducingFn) => mapper(
+  (employee) => ({ ...employee, over100k: employee.salary > 100000 })
 )(
-  filterer((employee) => employee.id % 2 === 0)(reducingFn)
+  filterer((employee) => employee.salary > 100000)(reducingFn)
 );
 
-// that hurts to read, we can use one-of-many libraries to help, here's lodash:
-const transformFn = _.flow(
-  mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0 })),
-  filterer((employee) => employee.fun) // we can filter on the prop we added when mapping
+// using lodash/fp we can make this look nicer
+
+const transformFn2 = _.flow(
+  mapper((employee) => ({ ...employee, over100k: employee.salary > 100000 })),
+  filterer((employee) => employee.salary > 100000)
 );
+
 ```
 
 Here's how we can use our new `transformFn`:
