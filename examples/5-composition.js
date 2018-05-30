@@ -1,26 +1,26 @@
 'use strict';
 
 const _ = require('lodash/fp');
-const employees = require('./data/employees');
-const { printEmployees } = require('./util/print-employees');
+const employees = require('../data/employees');
+const { printEmployees } = require('../util/print-employees');
 
 // refresher - a reducing function and a mapper and filterer
-const reducerFn = (initialValue, input) => {
-  initialValue.push(input);
-  return initialValue;
+const reducerFn = (accumulatedValue, input) => {
+  accumulatedValue.push(input);
+  return accumulatedValue;
 };
 
-const filterer = (filteringFn) => (reducingFn) => (initialValue, input) => {
-  return filteringFn(input) ? reducingFn(initialValue, input) : initialValue;
+const filterer = (filteringFn) => (reducingFn) => (accumulatedValue, input) => {
+  return filteringFn(input) ? reducingFn(accumulatedValue, input) : accumulatedValue;
 };
 
-const mapper = (mappingFn) => (reducingFn) => (initialValue, input) => {
-  return reducingFn(initialValue, mappingFn(input));
+const mapper = (mappingFn) => (reducingFn) => (accumulatedValue, input) => {
+  return reducingFn(accumulatedValue, mappingFn(input));
 };
 
 // now notice something - look at the reducerFn signature and the final function returned by
 // the filterer and mapper - notice something?
-// (initialValue, input) => initialValue
+// (accumulatedValue, input) => accumulatedValue
 
 // this means we can compose these functions together - consider this:
 // Note absurd whitespace to show the flow

@@ -51,21 +51,21 @@ const mapped = employees
 Now that map and filter have been implemented in terms of reduce we can give them a common 
 interface, it looks like this:
 
-`(someFunction) => (initialValue, input) => stuff`
+`(someFunction) => (accumulatedValue, input) => accumulatedValue`
 ```javascript
 // so with filter and map implemented in terms of reduce, we now have a common interface. Let's
 // extract more common things. Here are 2 common functions
 
-const filterer = (filteringFn) => (initialValue, input) => {
+const filterer = (filteringFn) => (accumulatedValue, input) => {
   if (filteringFn(input)) {
-    initialValue.push(input);
+    accumulatedValue.push(input);
   }
-  return initialValue;
+  return accumulatedValue;
 };
 
-const mapper = (mappingFn) => (initialValue, input) => {
-  initialValue.push(mappingFn(input));
-  return initialValue;
+const mapper = (mappingFn) => (accumulatedValue, input) => {
+  accumulatedValue.push(mappingFn(input));
+  return accumulatedValue;
 };
 ```
 Here's how we can use our new functions:
@@ -73,16 +73,16 @@ Here's how we can use our new functions:
 // now let's use them to get the above results
 const filtered = employees.reduce(filterer((employee) => employee.salary > 100000), []);
 // here's what's happening
-// filterer((employee) => ....) returns (initialValue, input) => {}
-// (initialValue, input) => {} is the signature for Array.reduce's callback
+// filterer((employee) => ....) returns (accumulatedValue, input) => {}
+// (accumulatedValue, input) => {} is the signature for Array.reduce's callback
 
 const mapped = employees.reduce(mapper((employee) => ({
   ...employee,
   over100k: employee.salary > 100000
 })), []);
 // same thing here:
-// mapper((employee) => ....) returns (initialValue, input) => {}
-// (initialValue, input) => {} is the signature for Array.reduce's callback
+// mapper((employee) => ....) returns (accumulatedValue, input) => {}
+// (accumulatedValue, input) => {} is the signature for Array.reduce's callback
 ```
 
 Now we have a common interface for filtering and mapping.
@@ -92,9 +92,9 @@ There's something else common here too, the function we use to fold our mapped o
 into a provided intialValue. Let's pull that out, here's what it looks like:
 
 ```javascript
-const reducingFn = (initialValue, input) => {
-  initialValue.push(input);
-  return initialValue;
+const reducingFn = (accumulatedValue, input) => {
+  accumulatedValue.push(input);
+  return accumulatedValue;
 };
 ```
 `reducingFn` takes in an initial value and an input, and reduces them to a single value and 
@@ -102,7 +102,7 @@ returns it (a pretty fancy way of describing `Array.push`).
 
 A _reducing function_ is a function, well, like you'd pass to `reduce` :) It takes an accumulated 
 result and a new input and returns a new accumulated result: 
-- `(accumulated-value, some-value) => accumulated-value`
+- `(accumulatedValue, input) => accumulatedValue`
 
 We want our transformations to work independently from the context of their input and output, so they 
 can specify only the essence of the transformation. The `Array.push` bit is really a leak of the output
@@ -112,12 +112,12 @@ context into our transform.
 Now let's refactor our `filterer` and `mapper` to accept a reducing function.
 
 ```javascript
-const filterer = (filteringFn) => (reducingFn) => (initialValue, input) => {
-  return filteringFn(input) ? reducingFn(initialValue, input) : initialValue;
+const filterer = (filteringFn) => (reducingFn) => (accumulatedValue, input) => {
+  return filteringFn(input) ? reducingFn(accumulatedValue, input) : accumulatedValue;
 };
 
-const mapper = (mappingFn) => (reducingFn) => (initialValue, input) => {
-  return reducingFn(initialValue, mappingFn(input));
+const mapper = (mappingFn) => (reducingFn) => (accumulatedValue, input) => {
+  return reducingFn(accumulatedValue, mappingFn(input));
 };
 ```
 We're letting the passed `reducingFn` take care of adding our mapped or filtered value into the 
@@ -162,16 +162,16 @@ employees.reduce(transformFn(reducingFn), []);
 
 Remember the _reducing function_ ? You know, it takes an accumulated result and a new input and 
 returns a new accumulated result: 
-- `(accumulated-value, some-value) => accumulated-value`
+- `(accumulatedValue, input) => accumulatedValue`
 
 Let's look at our `filterer` and `mapper` once more:
 ```javascript
-const filterer = (filteringFn) => (reducingFn) => (initialValue, input) => {
-  return filteringFn(input) ? reducingFn(initialValue, input) : initialValue;
+const filterer = (filteringFn) => (reducingFn) => (accumulatedValue, input) => {
+  return filteringFn(input) ? reducingFn(accumulatedValue, input) : accumulatedValue;
 };
 
-const mapper = (mappingFn) => (reducingFn) => (initialValue, input) => {
-  return reducingFn(initialValue, mappingFn(input));
+const mapper = (mappingFn) => (reducingFn) => (accumulatedValue, input) => {
+  return reducingFn(accumulatedValue, mappingFn(input));
 };
 ```
 

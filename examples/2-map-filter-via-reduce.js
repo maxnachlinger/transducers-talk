@@ -1,7 +1,7 @@
 'use strict';
 
-const employees = require('./data/employees');
-const { printEmployees } = require('./util/print-employees');
+const employees = require('../data/employees');
+const { printEmployees } = require('../util/print-employees');
 
 // We can implement filter and map via reduce easily
 // Note: I'm using push() here since I'd rather not create a new array on each iteration via concat()

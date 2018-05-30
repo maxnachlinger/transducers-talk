@@ -1,8 +1,8 @@
 'use strict';
 
 const transducers = require('transducers-js');
-const employees = require('./data/employees');
-const { printEmployees } = require('./util/print-employees');
+const employees = require('../data/employees');
+const { printEmployees } = require('../util/print-employees');
 
 const { map, filter, comp, into } = transducers;
 

@@ -1,7 +1,7 @@
 'use strict';
 
-const employees = require('./data/employees');
-const { printEmployees } = require('./util/print-employees');
+const employees = require('../data/employees');
+const { printEmployees } = require('../util/print-employees');
 
 // refresher - filter and map implemented via reduce
 const oldFiltered = employees
@@ -21,16 +21,16 @@ const oldMapped = employees
 // so with filter and map implemented in terms of reduce, we now have a common interface. Let's
 // extract more common things. Here are 2 common functions
 
-const filterer = (filteringFn) => (initialValue, input) => {
+const filterer = (filteringFn) => (accumulatedValue, input) => {
   if (filteringFn(input)) {
-    initialValue.push(input);
+    accumulatedValue.push(input);
   }
-  return initialValue;
+  return accumulatedValue;
 };
 
-const mapper = (mappingFn) => (initialValue, input) => {
-  initialValue.push(mappingFn(input));
-  return initialValue;
+const mapper = (mappingFn) => (accumulatedValue, input) => {
+  accumulatedValue.push(mappingFn(input));
+  return accumulatedValue;
 };
 
 // now let's use them to get the above results

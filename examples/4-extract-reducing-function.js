@@ -1,19 +1,19 @@
 'use strict';
 
-const employees = require('./data/employees');
-const { printEmployees } = require('./util/print-employees');
+const employees = require('../data/employees');
+const { printEmployees } = require('../util/print-employees');
 
 // refresher - 2 common mapper and filterer functions
-const oldFilterer = (filteringFn) => (initialValue, input) => {
+const oldFilterer = (filteringFn) => (accumulatedValue, input) => {
   if (filteringFn(input)) {
-    initialValue.push(input);
+    accumulatedValue.push(input);
   }
-  return initialValue;
+  return accumulatedValue;
 };
 
-const oldMapper = (mappingFn) => (initialValue, input) => {
-  initialValue.push(mappingFn(input));
-  return initialValue;
+const oldMapper = (mappingFn) => (accumulatedValue, input) => {
+  accumulatedValue.push(mappingFn(input));
+  return accumulatedValue;
 };
 
 // refresher - 2 common functions used to get the known results
@@ -27,22 +27,22 @@ const oldMapped = employees.reduce(oldMapper((employee) => ({
 // now we have a common interface for filtering and mapping
 
 // but there's something else common here too, the function we use to fold our mapped or filtered
-// initialValue into the accumulated value. Let's pull that out, here's what it looks like:
+// accumulatedValue into the accumulated value. Let's pull that out, here's what it looks like:
 
-const reducerFn = (initialValue, input) => {
-  initialValue.push(input);
-  return initialValue;
+const reducerFn = (accumulatedValue, input) => {
+  accumulatedValue.push(input);
+  return accumulatedValue;
 };
 
 // it takes in an initial value and an input, and reduces them to a single value
 // Now let's refactor our filterer and mapper to pass in a reducing function
 
-const filterer = (filteringFn) => (reducingFn) => (initialValue, input) => {
-  return filteringFn(input) ? reducingFn(initialValue, input) : initialValue;
+const filterer = (filteringFn) => (reducingFn) => (accumulatedValue, input) => {
+  return filteringFn(input) ? reducingFn(accumulatedValue, input) : accumulatedValue;
 };
 
-const mapper = (mappingFn) => (reducingFn) => (initialValue, input) => {
-  return reducingFn(initialValue, mappingFn(input));
+const mapper = (mappingFn) => (reducingFn) => (accumulatedValue, input) => {
+  return reducingFn(accumulatedValue, mappingFn(input));
 };
 
 const filtered = employees.reduce(

@@ -1,7 +1,7 @@
 'use strict';
 
-const employees = require('./data/employees');
-const { printEmployees } = require('./util/print-employees');
+const employees = require('../data/employees');
+const { printEmployees } = require('../util/print-employees');
 
 // filter: (value, index, array) => bool
 const filtered = employees
