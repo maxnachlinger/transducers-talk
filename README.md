@@ -89,7 +89,7 @@ Now we have a common interface for filtering and mapping.
 
 ### Reducing functions
 There's something else common here too, the function we use to fold our mapped or filtered value 
-into a provided intialValue. Let's pull that out, here's what it looks like:
+into a provided accumulatedValue. Let's pull that out, here's what it looks like:
 
 ```javascript
 const reducingFn = (accumulatedValue, input) => {
@@ -97,11 +97,9 @@ const reducingFn = (accumulatedValue, input) => {
   return accumulatedValue;
 };
 ```
-`reducingFn` takes in an accumulated value value and an input, and reduces them to a single value and 
-returns it (a pretty fancy way of describing `Array.push`).
-
-A _reducing function_ is a function, well, like you'd pass to `reduce` :) It takes an accumulated 
-result and a new input and returns a new accumulated result: 
+`reducingFn` is, as it's name suggests, a _reducing function_ . A reducing functions is, well, a 
+function you'd pass to `reduce` :) It takes an accumulated result and an input and returns a new 
+accumulated result: 
 - `(accumulatedValue, input) => accumulatedValue`
 
 We want our transformations to work independently from the context of their input and output, so they 
