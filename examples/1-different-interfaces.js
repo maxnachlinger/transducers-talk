@@ -1,29 +1,29 @@
 'use strict';
 
 const employees = require('./data/employees');
-const { employeesToString } = require('./util/employees-to-string');
+const { printEmployees } = require('./util/print-employees');
 
 // filter: (value, index, array) => bool
 const filtered = employees
-  .filter(({ id }) => id % 2 === 0);
+  .filter(({ salary }) => salary > 100000);
 
 // map: (value, index, array) => Any
 const mapped = employees
-  .map((employee) => ({ ...employee, fun: employee.id % 2 === 0 }));
+  .map((employee) => ({ ...employee, over100k: employee.salary > 100000 }));
 
 // reduce is the outlier: (accumulator, value, index, array) => Any
-const { red, blue } = employees
-  .reduce(({ red, blue }, employee) => {
-    if (employee.id % 2 === 0) {
-      blue.push(employee);
-      return { red, blue };
+const { under100k, over100k } = employees
+  .reduce(({ under100k, over100k }, employee) => {
+    if (employee.salary > 100000) {
+      over100k.push(employee);
+      return { under100k, over100k };
     }
 
-    red.push(employee);
-    return { red, blue };
-  }, { red: [], blue: [] });
+    under100k.push(employee);
+    return { under100k, over100k };
+  }, { under100k: [], over100k: [] });
 
-console.log(`filtered:\t(${filtered.length}) ${employeesToString(filtered)}`);
-console.log(`mapped:\t\t(${mapped.length}) ${employeesToString(mapped)}`);
-console.log(`red:\t\t(${red.length}) ${employeesToString(red)}`);
-console.log(`blue:\t\t(${blue.length}) ${employeesToString(blue)}`);
+printEmployees('filtered:', filtered);
+printEmployees('mapped:', mapped);
+printEmployees('under100k:', under100k);
+printEmployees('over100k:', over100k);

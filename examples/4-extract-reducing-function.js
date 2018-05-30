@@ -1,7 +1,7 @@
 'use strict';
 
 const employees = require('./data/employees');
-const { employeesToString } = require('./util/employees-to-string');
+const { printEmployees } = require('./util/print-employees');
 
 // refresher - 2 common mapper and filterer functions
 const oldFilterer = (filteringFn) => (initialValue, input) => {
@@ -17,11 +17,11 @@ const oldMapper = (mappingFn) => (initialValue, input) => {
 };
 
 // refresher - 2 common functions used to get the known results
-const oldFiltered = employees.reduce(oldFilterer((employee) => employee.id % 2 === 0), []);
+const oldFiltered = employees.reduce(oldFilterer((employee) => employee.salary > 100000), []);
 
 const oldMapped = employees.reduce(oldMapper((employee) => ({
   ...employee,
-  fun: employee.id % 2 === 0
+  over100k: employee.salary > 100000
 })), []);
 
 // now we have a common interface for filtering and mapping
@@ -46,16 +46,16 @@ const mapper = (mappingFn) => (reducingFn) => (initialValue, input) => {
 };
 
 const filtered = employees.reduce(
-  filterer((employee) => employee.id % 2 === 0)(reducerFn),
+  filterer((employee) => employee.salary > 100000)(reducerFn),
   []
 );
 
 const mapped = employees.reduce(
-  mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0 }))(reducerFn),
+  mapper((employee) => ({ ...employee, over100k: employee.salary > 100000 }))(reducerFn),
   []
 );
 
-console.log(`old filtered:\t(${oldFiltered.length}) ${employeesToString(oldFiltered)}`);
-console.log(`filtered:\t\t(${filtered.length}) ${employeesToString(filtered)}`);
-console.log(`old mapped:\t\t(${oldMapped.length}) ${employeesToString(oldMapped)}`);
-console.log(`mapped:\t\t\t(${mapped.length}) ${employeesToString(mapped)}`);
+printEmployees('old filtered:', oldFiltered);
+printEmployees('filtered:', filtered);
+printEmployees('old mapped:', oldMapped);
+printEmployees('mapped:', mapped);

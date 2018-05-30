@@ -2,7 +2,7 @@
 
 const _ = require('lodash/fp');
 const employees = require('./data/employees');
-const { employeesToString } = require('./util/employees-to-string');
+const { printEmployees } = require('./util/print-employees');
 
 // refresher - a reducing function and a mapper and filterer
 const reducerFn = (initialValue, input) => {
@@ -26,9 +26,9 @@ const mapper = (mappingFn) => (reducingFn) => (initialValue, input) => {
 // Note absurd whitespace to show the flow
 
 const transformFn = (reducingFn) => mapper(
-  (employee) => ({ ...employee, fun: employee.id % 2 === 0 })
+  (employee) => ({ ...employee, over100k: employee.salary > 100000 })
 )(
-  filterer((employee) => employee.id % 2 === 0)(reducingFn)
+  filterer((employee) => employee.salary > 100000)(reducingFn)
 );
 
 const filteredAndMapped = employees.reduce(transformFn(reducerFn), []);
@@ -36,11 +36,11 @@ const filteredAndMapped = employees.reduce(transformFn(reducerFn), []);
 // using lodash/fp we can make this look nicer
 
 const transformFn2 = _.flow(
-  mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0 })),
-  filterer((employee) => employee.id % 2 === 0)
+  mapper((employee) => ({ ...employee, over100k: employee.salary > 100000 })),
+  filterer((employee) => employee.salary > 100000)
 );
 
 const filteredAndMapped2 = employees.reduce(transformFn2(reducerFn), []);
 
-console.log(`filtered and mapped:\t(${filteredAndMapped.length}) ${employeesToString(filteredAndMapped)}`);
-console.log(`filtered and mapped 2:\t(${filteredAndMapped2.length}) ${employeesToString(filteredAndMapped2)}`);
+printEmployees('filtered and mapped:', filteredAndMapped);
+printEmployees('filtered and mapped 2:', filteredAndMapped2);

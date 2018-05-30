@@ -2,6 +2,7 @@
 
 ### Let's build up some ideas before we talk about transducers
 
+### filter, map, and reduce
 Array filter, map, and reduce have different signatures:
 ```javascript
 // filter: (value, index, array) => bool
@@ -26,6 +27,7 @@ employees
 ```
 (As an aside, does anyone ever user the final `array` arg?)
 
+### Making the interfaces identical
 We can implement filter and map via reduce:
 ```javascript
 // Note: I'm using push() here since I'd rather not create a new array on each 
@@ -82,6 +84,7 @@ employees.reduce(mapper((employee) => ({ ...employee, fun: employee.id % 2 === 0
 
 Now we have a common interface for filtering and mapping.
 
+### Reducing functions
 There's something else common here too, the function we use to fold our mapped or filtered value 
 into a provided intialValue. Let's pull that out, here's what it looks like:
 
@@ -94,17 +97,15 @@ const reducingFn = (initialValue, input) => {
 `reducingFn` takes in an initial value and an input, and reduces them to a single value and 
 returns it (a pretty fancy way of describing `Array.push`).
 
-### A fun term
 A _reducing function_ is a function, well, like you'd pass to `reduce` :) It takes an accumulated 
 result and a new input and returns a new accumulated result: 
 - `(accumulated-value, some-value) => accumulated-value`
 
-### Why the heck would be pass that in?
 We want our transformations to work independently from the context of their input and output, so they 
 can specify only the essence of the transformation. The `Array.push` bit is really a leak of the output
 context into our transform.
 
-### Meanwhile...
+### Passing in a reducing function
 Now let's refactor our `filterer` and `mapper` to accept a reducing function.
 
 ```javascript

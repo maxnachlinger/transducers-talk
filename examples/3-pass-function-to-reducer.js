@@ -1,12 +1,12 @@
 'use strict';
 
 const employees = require('./data/employees');
-const { employeesToString } = require('./util/employees-to-string');
+const { printEmployees } = require('./util/print-employees');
 
 // refresher - filter and map implemented via reduce
 const oldFiltered = employees
   .reduce((accum, employee) => {
-    if (employee.id % 2 === 0) {
+    if (employee.salary > 100000) {
       accum.push(employee);
     }
     return accum
@@ -14,7 +14,7 @@ const oldFiltered = employees
 
 const oldMapped = employees
   .reduce((accum, employee) => {
-    accum.push({ ...employee, fun: employee.id % 2 === 0 });
+    accum.push({ ...employee, over100k: employee.salary > 100000 });
     return accum;
   }, []);
 
@@ -34,16 +34,16 @@ const mapper = (mappingFn) => (initialValue, input) => {
 };
 
 // now let's use them to get the above results
-const filtered = employees.reduce(filterer((employee) => employee.id % 2 === 0), []);
+const filtered = employees.reduce(filterer((employee) => employee.salary > 100000), []);
 
 const mapped = employees.reduce(mapper((employee) => ({
   ...employee,
-  fun: employee.id % 2 === 0
+  over100k: employee.salary > 100000
 })), []);
 
-console.log(`old filtered:\t(${oldFiltered.length}) ${employeesToString(oldFiltered)}`);
-console.log(`filtered:\t\t(${filtered.length}) ${employeesToString(filtered)}`);
-console.log(`old mapped:\t\t(${oldMapped.length}) ${employeesToString(oldMapped)}`);
-console.log(`mapped:\t\t\t(${mapped.length}) ${employeesToString(mapped)}`);
+printEmployees('old filtered:', oldFiltered);
+printEmployees('filtered:', filtered);
+printEmployees('old mapped:', oldMapped);
+printEmployees('mapped:', mapped);
 
 // now we have a common interface for filtering and mapping
