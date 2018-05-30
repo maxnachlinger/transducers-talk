@@ -118,10 +118,11 @@ accumulated result:
 
 We want our transformations to work independently from the context of their input and output, so they 
 can specify only the essence of the transformation. The `Array.push` bit is really a leak of the output
-context into our transform.
+context into our transform. Passing in a reducing function would isolate our transformation code
+from the details of our output context.
 
 ### Passing in a reducing function
-Now let's refactor our `filterer` and `mapper` to accept a reducing function.
+Let's refactor our `filterer` and `mapper` to accept a reducing function.
 
 ```javascript
 const filterer = (filteringFn) => (reducingFn) => (accumulatedValue, input) => {
@@ -152,18 +153,18 @@ Our new `filterer` and `mapper` now have the same signature which means we can c
 ```javascript
 // Note absurd whitespace to show the flow
 
-const transformFn = (reducingFn) => mapper(
+const transformFnSheesh = (reducingFn) => mapper(
   (employee) => ({ ...employee, over100k: employee.salary > 100000 })
 )(
   filterer((employee) => employee.salary > 100000)(reducingFn)
-);
+); // (reducingFunction) => (accumulatedValue, input) => ...
 
 // using lodash/fp we can make this look nicer
 
-const transformFn2 = _.flow(
+const transformFn = _.flow(
   mapper((employee) => ({ ...employee, over100k: employee.salary > 100000 })),
   filterer((employee) => employee.salary > 100000)
-);
+); // (reducingFunction) => (accumulatedValue, input) => ...
 ```
 
 Here's how we can use our new `transformFn`:
