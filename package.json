@@ -2,7 +2,7 @@
   "name": "transducers-talk",
   "version": "1.0.0",
   "description": "",
-  "main": "0-intermediate-collections.js",
+  "main": "examples/1-different-interfaces.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
