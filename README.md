@@ -1,6 +1,20 @@
-## Transducers
+## Transducers chat
 
-### Let's build up some ideas before we talk about transducers
+### Transducers
+Here's a great definition from [the relevant Clojure doc](https://clojure.org/reference/transducers) 
+(I've edited this slightly to be more javascripty)
+
+> Transducers are composable transformations. They are independent from the context of their input 
+and output sources and specify only the essence of the transformation in terms of an individual 
+element. Because transducers are decoupled from input or output sources, they can be used in many 
+different processes - collections, observables, etc. Transducers compose directly, without 
+awareness of input or creation of intermediate aggregates.
+
+### Benefits:
+1. Collections are only looped through once, take that `[].filter().map()` !
+2. We can compose N simple transformations which are easy to reason about and test on their own
+
+### This will make more sense once we discuss a few ideas
 
 ### filter, map, and reduce
 Array filter, map, and reduce have different signatures:
@@ -150,7 +164,6 @@ const transformFn2 = _.flow(
   mapper((employee) => ({ ...employee, over100k: employee.salary > 100000 })),
   filterer((employee) => employee.salary > 100000)
 );
-
 ```
 
 Here's how we can use our new `transformFn`:
@@ -177,18 +190,14 @@ First you pass in some mapping or filtering logic, then you get back a function 
 function. You pass in that reducing function and it's wrapped in the mapping/filtering logic. This is
 a transducer. 
 
-### Transducers
-One definition: transforming one reducing function to another.
+### Recap
 
-Here's a better one from [the relevant Clojure doc](https://clojure.org/reference/transducers) 
-(edited slightly to be more javascripty)
-
+Here's a great definition again:
 > Transducers are composable transformations. They are independent from the context of their input 
 and output sources and specify only the essence of the transformation in terms of an individual 
 element. Because transducers are decoupled from input or output sources, they can be used in many 
 different processes - collections, observables, etc. Transducers compose directly, without 
 awareness of input or creation of intermediate aggregates.
 
-### Benefits:
-1. Collections are only looped through once, take that `[].filter().map()` !
-2. We can compose N simple transformations which are easy to reason about and test on their own
+Here's one more:
+> transforming one reducing function to another
